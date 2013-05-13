@@ -11,4 +11,5 @@ import java.lang.annotation.Target
 @Target([ElementType.TYPE])
 @GroovyASTTransformationClass("org.gr8conf.AuthorAdderASTTransformation")
 @interface Author {
+    String value();
 }
