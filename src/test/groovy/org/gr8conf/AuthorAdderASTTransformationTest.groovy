@@ -4,10 +4,10 @@ class AuthorAdderASTTransformationTest extends GroovyTestCase {
 
     void testASTTransformationShouldBeDebuggableFromIDE() {
         assertScript '''import org.gr8conf.Author
-            @Author
+            @Author('John Doe')
             class Foo {
             }
-            assert Foo.$AUTHOR == 'Cédric Champeau'
+            assert Foo.$AUTHOR == 'John Doe'
         '''
     }
 }
