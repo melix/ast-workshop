@@ -1,0 +1,18 @@
+apply plugin:'idea'
+apply plugin:'groovy'
+apply plugin:'java'
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+
+    compile "org.codehaus.groovy:groovy-all:$groovyVersion"
+
+    testCompile "org.codehaus.groovy:groovy-all:$groovyVersion"
+    testCompile "junit:junit:4.11"
+    testCompile "org.spockframework:spock-core:$spockVersion"
+}
+
+
