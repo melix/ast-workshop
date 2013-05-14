@@ -33,13 +33,12 @@ import org.codehaus.groovy.transform.AbstractASTTransformation
 import org.codehaus.groovy.transform.GroovyASTTransformation
 
 @GroovyASTTransformation(phase = CompilePhase.SEMANTIC_ANALYSIS)
-class MirrorModeASTTransformation extends AbstractASTTransformation {
+class FieldToListASTTransformation extends AbstractASTTransformation {
     @Override
     public void visit(final ASTNode[] nodes, final SourceUnit source) {
         if (nodes.length != 2) return
-        if (nodes[0] instanceof AnnotationNode && nodes[1] instanceof MethodNode) {
-            def trn = new MirrorTransformer(source)
-            trn.visitMethod(nodes[1])
+        if (nodes[0] instanceof AnnotationNode && nodes[1] instanceof FieldNode) {
+            // insert here code transforming String to List<String>
         }
     }
 }
