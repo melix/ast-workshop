@@ -42,4 +42,27 @@ class MirrorModeASTTransformation extends AbstractASTTransformation {
             trn.visitMethod(nodes[1])
         }
     }
+
+    private static class MirrorTransformer extends ClassCodeExpressionTransformer {
+        private final SourceUnit source;
+
+        MirrorTransformer(final SourceUnit source) {
+            this.source = source
+        }
+
+        @Override
+        protected SourceUnit getSourceUnit() {
+            source
+        }
+
+        @Override
+        Expression transform(final Expression exp) {
+            def res = super.transform(exp)
+            if (res instanceof MethodCallExpression && res.method instanceof ConstantExpression) {
+                res.method = new ConstantExpression(res.method.text.reverse())
+            }
+
+            res
+        }
+    }
 }
