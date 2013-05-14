@@ -44,6 +44,8 @@ public class SayHelloASTTransformation extends AbstractASTTransformation {
      */
     private void addHelloMethod(final ClassNode classNode, final SourceUnit source) {
         MethodCallExpression toUpperCaseCall = new MethodCallExpression(new VariableExpression("message"), "toUpperCase", ArgumentListExpression.EMPTY_ARGUMENTS);
+        toUpperCaseCall.setLineNumber(666);
+        toUpperCaseCall.setColumnNumber(666);
         toUpperCaseCall.setImplicitThis(false);
         TernaryExpression conditional = new TernaryExpression(
                 new BooleanExpression(new VariableExpression("shout")),
@@ -61,5 +63,8 @@ public class SayHelloASTTransformation extends AbstractASTTransformation {
                         new Parameter(ClassHelper.boolean_TYPE, "shout", new ConstantExpression(false))},
                 ClassNode.EMPTY_ARRAY,
                 stmt);
+        VariableScopeVisitor visitor = new VariableScopeVisitor(source);
+        visitor.prepareVisit(classNode);
+        visitor.visitMethod(method);
     }
 }

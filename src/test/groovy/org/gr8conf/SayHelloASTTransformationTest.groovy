@@ -8,7 +8,7 @@ class SayHelloASTTransformationTest extends GroovyTestCase {
             @ASTTest(phase=SEMANTIC_ANALYSIS,value={
                 assert node.getDeclaredMethods('sayHello').size() == 1
             })
-            //@groovy.transform.CompileStatic
+            @groovy.transform.CompileStatic
             class Greeter {
             }
 
