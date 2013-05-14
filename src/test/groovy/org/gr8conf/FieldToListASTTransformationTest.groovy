@@ -6,9 +6,15 @@ class FieldToListASTTransformationTest extends GroovyTestCase {
         assertScript '''import org.gr8conf.FieldToList
             import groovy.transform.ASTTest
             import static org.codehaus.groovy.control.CompilePhase.INSTRUCTION_SELECTION
+            import static org.codehaus.groovy.ast.ClassHelper.*
 
             @ASTTest(phase=INSTRUCTION_SELECTION,value={
-                // insert code checking that field called "name" is now of type List<String>
+                def field = node.getDeclaredField('name')
+                assert field.type == LIST_TYPE
+                assert field.type.isUsingGenerics()
+                def generics = field.type.genericsTypes
+                assert generics.length==1
+                assert generics[0].type == STRING_TYPE
             })
             class Foo {
                 @FieldToList String name

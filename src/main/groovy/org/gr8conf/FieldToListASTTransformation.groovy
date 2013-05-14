@@ -21,6 +21,7 @@ import org.codehaus.groovy.ast.ClassCodeExpressionTransformer
 import org.codehaus.groovy.ast.ClassHelper
 import org.codehaus.groovy.ast.ClassNode
 import org.codehaus.groovy.ast.FieldNode
+import org.codehaus.groovy.ast.GenericsType
 import org.codehaus.groovy.ast.MethodNode
 import org.codehaus.groovy.ast.builder.AstBuilder
 import org.codehaus.groovy.ast.expr.ConstantExpression
@@ -38,7 +39,10 @@ class FieldToListASTTransformation extends AbstractASTTransformation {
     public void visit(final ASTNode[] nodes, final SourceUnit source) {
         if (nodes.length != 2) return
         if (nodes[0] instanceof AnnotationNode && nodes[1] instanceof FieldNode) {
-            // insert here code transforming String to List<String>
+            def fn = nodes[1]
+            def listType = ClassHelper.LIST_TYPE.plainNodeReference
+            listType.genericsTypes = [new GenericsType(fn.type)]
+            fn.type = listType
         }
     }
 }
