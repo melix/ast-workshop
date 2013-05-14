@@ -8,8 +8,8 @@ import java.lang.annotation.RetentionPolicy
 import java.lang.annotation.Target
 
 @Retention(RetentionPolicy.SOURCE)
-@Target([ElementType.TYPE])
-@GroovyASTTransformationClass("org.gr8conf.AuthorAdderASTTransformation")
-@interface Author {
+@Target([ElementType.METHOD])
+@GroovyASTTransformationClass("org.gr8conf.TransformArgumentASTTransformation")
+@interface TransformArgument {
     String value();
 }
