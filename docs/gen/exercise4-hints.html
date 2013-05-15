@@ -263,7 +263,43 @@ table.CodeRay td { padding: 2px 4px; vertical-align: top; }
     </tr>
   </table>
 </div>
-
+<div class="sect3">
+  <h4 id="_throwing_errors">Throwing errors</h4>
+<div class="paragraph">  
+  <p>If you want to report errors to the user, it is not recommanded that you throw exceptions, as they will likely result in a compiler crash, which is a bit unfriendly even if the stack trace contains a message for the user. Instead, you should use the <code>error collector</code> that the <code>SourceUnit</code> provides. For example, you can do:</p>
+</div><div class="quoteblock">
+  
+  <blockquote>
+<a href="http://grails.io/post/15965611310/lessons-learnt-developing-groovy-ast-transformations">http://grails.io/post/15965611310/lessons-learnt-developing-groovy-ast-transformations</a>
+  </blockquote>
+  <div class="attribution">
+    
+    
+    
+    &#8212; Example from Graeme Rocher
+    
+  </div>
+</div>
+<div class="listingblock">
+  
+  <div class="content monospaced">
+    
+    <pre class="highlight CodeRay"><code class="java"><span class="predefined-type">String</span> messageText = <span class="string"><span class="delimiter">&quot;</span><span class="content">You can only negate a binary expressions in queries.</span><span class="delimiter">&quot;</span></span>
+Token token = Token.newString(
+                       expression.getText(),
+                       expression.getLineNumber(),
+                       expression.getColumnNumber())
+LocatedMessage message = <span class="keyword">new</span> LocatedMessage(messageText, token, sourceUnit)
+sourceUnit
+   .getErrorCollector()
+   .addError(message);</code></pre>
+    
+  </div>
+</div>
+<div class="paragraph">  
+  <p>This way of doing things is more interesting because you can link the user to the actual code which is faulty, and it can also help IDEs to highlight errors in code!</p>
+</div>
+</div>
 </div>
   </div>
 </div>
@@ -272,7 +308,7 @@ table.CodeRay td { padding: 2px 4px; vertical-align: top; }
     <div id="footer">
       <div id="footer-text">
         
-        Last updated 2013-05-15 14:48:52 CEST
+        Last updated 2013-05-15 16:37:07 CEST
       </div>
     </div>
   </body>

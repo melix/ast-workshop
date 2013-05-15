@@ -39,4 +39,22 @@ annotationNode.getMember('value')
 The result will be +null+. The reason is that Groovy doesn't convert "runtime" values into AST trees.
 ====
 
+==== Throwing errors
 
+If you want to report errors to the user, it is not recommanded that you throw exceptions, as they will likely result in a compiler crash, which is a bit unfriendly even if the stack trace contains a message for the user. Instead, you should use the +error collector+ that the +SourceUnit+ provides. For example, you can do:
+
+[quote, Example from Graeme Rocher]
+http://grails.io/post/15965611310/lessons-learnt-developing-groovy-ast-transformations
+
+```java
+String messageText = "You can only negate a binary expressions in queries."
+Token token = Token.newString(
+                       expression.getText(),
+                       expression.getLineNumber(), 
+                       expression.getColumnNumber())
+LocatedMessage message = new LocatedMessage(messageText, token, sourceUnit)
+sourceUnit
+   .getErrorCollector()
+   .addError(message);
+```
+This way of doing things is more interesting because you can link the user to the actual code which is faulty, and it can also help IDEs to highlight errors in code!
