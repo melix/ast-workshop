@@ -1,0 +1,185 @@
+= Unleashing the power of AST transformations
+Cédric Champeau <cedric.champeau@gmail.com>
+Andrés Almiray
+:toc:
+
+== Prerequisites
+
+To run this workshop, you will need:
+
+* a +git+ client
+* an internet connection for the +Gradle Wrapper+
+** or prepare yourself by downloading +Gradle 1.6+
+* ideally, an IDE (but you can use any editor)
+
+== Following the workshop
+
+The workshop consists of a series of exercises. We will give you explanations for each exercise and details about the solution can be found in a separate document. Don't worry if you don't complete an exercise in time, all solutions are available in separate +git+ branches. Exercises are self-contained, so if you checkout the branch of the exercise for each one, you should not have any problem, even if an exercise is the continuation of a previous one.
+
+[NOTE]
+====
+We may not have time to complete all exercises. *Don't worry*. We've made this workshop accessible from beginners to more advanced Groovy hackers, so the time required to complete the workshop can vary. If you don't finish all exercises in time, feel free to continue at home. You can still ask questions after the session, we would be pleased to answer.
+On the opposite, if you feel comfortable with the easiest exercises, you can start with more complex ones.
+====
+
+Each exercise can be checked out issuing a +git checkout+ command:
+
+[source,text]
+git checkout exercise1
+
+If you want to try your solution, you have two options. The first one is to run the unit test within your IDE (be careful with global AST transformations, you can have surprises) and the safest way is to use Gradle:
+
+[source,text]
+----
+./gradlew test
+----
+
+Solutions can be found by checking out the same branch name, appended with +-solution+:
+
+[source,text]
+git checkout exercise1-solution
+
+It is recommanded that you save your solution first, to compare it with the workshop solutions:
+
+[source,text]
+git branch -b exercise1-mysolution
+git commit -a -m "My solution to exercise 1"
+git checkout exercise1-solution
+
+== Exercises
+[NOTE]
+Some exercises have optional questions. Those questions are more advanced and aimed towards people who have a deeper knowledge of AST transformations. For beginners, we recommand to skip them, but the solutions are included, so you can try to solve the problem later.
+
+=== Exercise 1: Global AST transformations
+
+* Create a global AST transformation that adds a public static final field +$AUTHOR+ to all classes
+* Initialize the field with your name
+* Update the unit test and make it pass
+
+* Can you use the AST transformation in the same source tree as the one it's defined in?
+* (optional) Can you write a unit test which allows debugging the AST transformation (from your IDE for example)?
+
+[TIP]
+Should you need help, follow the instructions of link:exercise1-hints.html[this document]
+
+=== Exercise 2: Discovering the AstBuilder
+
+* Modify the AST transformation so that implementation is in Groovy
+* Use the AST builder instead of creating the field "by hand"
+
+* What are the advantages of writing an AST transformation in Groovy?
+* Can you see any problem with writing the AST transform in Groovy?
+* What are the advantages of the AST builder?
+* What are the problems of the AST builder?
+
+[TIP]
+Should you need help, follow the instructions of link:exercise2-hints.html[this document]
+
+=== Exercise 3: Local AST transformations
+
+* Remove the global AST transform descriptor file
+* Check that unit tests now fail
+* Introduce a +@Author+ annotation
+* Modify the transformation so that it now works on the annotated class
+* Check that the unit test still fails
+* Modify the unit test so that it passes
+
+[TIP]
+Should you need help, follow the instructions of link:exercise3-hints.html[this document]
+
+=== Exercise 4: Parametrized AST transformations
+
+* Open the unit test and look at the argument to the +@Author+ AST xform
+* Add support for a parameter in the +@Author+ AST xform
+* (optional) add an error message if the AST transformation is triggered with wrong arguments
+
+[TIP]
+Should you need help, follow the instructions of link:exercise4-hints.html[this document]
+
+=== Exercise 5: Using @ASTTest
+
+* Open the unit test and take a look at the +@ASTTest+ annotation
+* Fix the unit test so that you check that the class has an +$AUTHOR+ field added
+* Check that the field uses the +String+ type
+* Check that the field modifiers are +public+, +static+ and +final+
+* Check that the field has an initial expression which is +John Doe+
+
+* What is the main difference between +@ASTTest+ and the previous tests we've written?
+* What solution is preferred?
+
+[TIP]
+Should you need help, follow the instructions of link:exercise5-hints.html[this document]
+
+=== Exercice 6: ClassNode vs ClassHelper.make
+
+* Execute the unit test
+** Take a look at the behaviour of +makeWithoutCaching+. Is it surprising? Can you see what happens?
+** How should you create class nodes in general?
+
+[TIP]
+Should you need help, follow the instructions of link:exercise6-hints.html[this document]
+
+=== Exercise 7: Variable scope, @CompileStatic and the 666 trick
+
+The source code contains a global AST transformation that creates a +sayHello+ method that looks like this:
+```groovy
+void sayHello(String message, boolean shout=false) { 
+    println (shout?message.toUpperCase():message) 
+}
+```
+
+* execute the unit test and check that it passes
+* uncomment the +@CompileStatic+ annotation, run the test again. What happens?
+** you are just facing an incompatibility with +@CompileStatic+, but what's wrong?
+* after the +MethodCallExpression toUpperCaseCall+ line, append the following code:
+```groovy
+toUpperCaseCall.setLineNumber(666);
+toUpperCaseCall.setColumnNumber(666);
+```
+** What happens? What does it tell you?
+* at the end of the method body, add the following lines:
+```java
+VariableScopeVisitor visitor = new VariableScopeVisitor(source);
+visitor.prepareVisit(classNode);
+visitor.visitMethod(method);
+```
+** run the unit test again. What happens? What have you fixed?
+
+[TIP]
+Should you need help, follow the instructions of link:exercise7-hints.html[this document]
+
+=== Exercise 8: Expression transformers
+
+* Look at the unit test. There's a call to +nltnirp+ which should be changed to +println+ using an AST transformation.
+* Leaving the test untouched, implement a +ClassCodeExpressionTransformer+ which performs the operation
+
+[TIP]
+Should you need help, follow the instructions of link:exercise8-hints.html[this document]
+
+=== Exercise 9: Working with generics
+
+The goal of this exercise is to transform fields of a simple type into a field of +List<simple type>+.
+
+* run the unit test, check that it fails
+* in the transform code, change the type of the field to +ClassHelper.LIST_TYPE+. What happens?
+* in the transform code, change the type of the field to +ClassHelper.LIST_TYPE.getPlainNodeReference()+. What happens?
+* Update the unit test to check that:
+** the type of the field is now a `List`
+** the generic type arguments of the field is a String type
+* If your unit test fails, fix the transform
+
+[TIP]
+Should you need help, follow the instructions of link:exercise9-hints.html[this document]
+
+=== Exercise 10: Closures as annotation values
+
+One of the most interesting features of annotations in Groovy is that they can have closures as values. The +@ASTTest+ transformation, for example, uses this feature, as well as AST transformations like +@ConditionalInterrupt+ or those found in https://github.com/andresteingress/gcontracts/wiki[GContracts].
+
+* open the +org.gr8conf.TransformArgument+ annotation. Change the value type to the correct value so that closures can be used as arguments.
+* open the AST transformation code and implement the +createMappingMethodCall+ method
+** Would it be easy to make it compatible with +@CompileStatic+? Why?
+* (optional) Can you make this annotation work with separate closures for each argument?
+
+[TIP]
+Should you need help, follow the instructions of link:exercise10-hints.html[this document]
+

@@ -1,0 +1,29 @@
+= Unleashing the power of AST transformations
+Cédric Champeau <cedric.champeau@gmail.com>
+Andrés Almiray
+
+== Details for exercise 8
+
+
+=== Expression transformers
+
+The https://github.com/groovy/groovy-core/blob/master/src/main/org/codehaus/groovy/ast/ClassCodeExpressionTransformer.java[org.codehaus.groovy.ast.ClassCodeExpressionTransformer] class is a very useful support class which will help you if you need to transform an expression into another one.
+
+Basically, all you have to do is to implement this method:
+```groovy
+public Expression transform(Expression exp) {
+...
+}
+```
+By selecting the type of expression you wish to transform.
+
+=== Tips and tricks
+
+* never forget to call +super.transform(exp)+
+* never forget to transform sub-expressions.
+** for example, if you transform a method call expression, don't forget to transform the arguments
+
+=== Comments
+
+If you transform an expression, it's interesting to keep the line/column numbers from the originating expression, as it would allow setting breakpoints in code and still let the debugger stop at those if the code is transformed.
+

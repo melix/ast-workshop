@@ -1,0 +1,42 @@
+= Unleashing the power of AST transformations
+Cédric Champeau <cedric.champeau@gmail.com>
+Andrés Almiray
+
+== Details for exercise 4
+
+=== Parametrized AST transformations
+
+Unlike global AST transformations, local AST transformations can be parametrized. The main advantage is that you can alter the behaviour of the AST transformation depending on user-supplied arguments. Most of the AST transformations in the Groovy programming language provide at least one option.
+
+=== Tips and tricks
+
+* The +@interface+ will define the expected value types, which are end-user types, but you must understand that when the AST transform is run, the value of an annotation parameter is represented as an AST node. For example, even if you define an annotation that defines a +String value()+, when the AST transformation is executed, the value itself can be represented by many expressions:
+** a +ConstantExpression+ of type +String+
+** a +PropertyExpression+ (for example, +@Foo(Bar.BAZ)+)
+** a +VariableExpression+ (for example, using a static import, +@Foo(BAZ)+)
+* It can be hard to handle all cases, but fortunately the +AbstractASTTransformation+ class provides some utility methods that can help you
+
+=== Comments
+
+[WARNING]
+====
+It is important to document the annotation class, as well as defining default values, but you can hit a limitation of AST transformations, which is that even if a parameter, in the annotation class, is defined to have a default value, if the user doesn't provide the default value, then the member will be +null+, instead of an expression representing the default value. For example, imagine:
+```groovy
+...
+@interface Greeting {
+   String value() default 'Hello'
+}
+```
+And user code:
+```groovy
+@Greeting
+String bar() { ... }
+```
+Then if in the AST transformation, you write:
+```groovy
+annotationNode.getMember('value')
+```
+The result will be +null+. The reason is that Groovy doesn't convert "runtime" values into AST trees.
+====
+
+

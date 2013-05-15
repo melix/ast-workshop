@@ -1,0 +1,41 @@
+= Unleashing the power of AST transformations
+Cédric Champeau <cedric.champeau@gmail.com>
+Andrés Almiray
+
+== Details for exercise 6
+
+=== Types, the Groovy way
+
+This exercise covers one of the most complex aspects of Groovy internals, that is to say the internal representation of types. At the heart of the model is found the +ClassNode+ class, which represents a type. But in practice, it represents much more than a type (mostly for historical reasons). This is responsible for lots of confusion and errors in AST transformations.
+
+The Groovy source contains a helper class, called https://github.com/groovy/groovy-core/blob/master/src/main/org/codehaus/groovy/ast/ClassHelper.java[org.codehaus.groovy.ast.ClassHelper], that you should *always* use when you need to work with types. It contains some predefined class nodes (for primitive types and a lot of widely used types such as +List+) and will perform all the necessary magic with regards to creating an internal representation of the type that matches the actual type.
+
+=== Tips and tricks
+
+* Unless you really know what you do, *never* create a +ClassNode+ by yourself.
+* Unless you really know what you do, *avoid* using +ClassHelper.makeWithoutCaching+ because it may not return what you expect
+* Use +ClassHelper.make+ when you need a type, and *avoid* using the version that takes a +String+.
+
+=== Comments
+
+----
+Take a look at the behaviour of makeWithoutCaching. Is it surprising? Can you see what happens?
+----
+The behaviour can indeed be surprising, because unlike what the name says, +makeWithoutCaching+ can return cached nodes. It depends whether a cached node already exists or not before the call to +makeWithoutCaching+. If one exists, then it is returned. If no cached node exists, a new class node is generated, but it is not cached.
+
+----
+How should you create class nodes in general?
+----
+Use +ClassHelper.make(Class)+, and you can cache those instances as private final static members of your AST transformations, for example.
+
+[NOTE]
+====
++make(String)+ vs +make(Class)+
+
+There is a huge difference between the two. The first one will only create an internal representation of the +ClassNode+ corresponding to the class if it is found in the compiler classloader. The second one will use the +Class+ itself, meaning it can be loaded from any classloader. This means that if you write, for example:
+```groovy
+ClassHelper.make('com.example.MyClass')
+```
+And that +MyClass+ is not on the compile classpath, then the resulting class node will be an "empty" class node, with no methods, no properties, ... On the other hand, if it's on the compile classpath, the result would be equivalent to calling +ClassHelper.make(MyClass)+.
+====
+

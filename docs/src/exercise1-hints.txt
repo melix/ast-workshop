@@ -1,0 +1,53 @@
+= Unleashing the power of AST transformations
+Cédric Champeau <cedric.champeau@gmail.com>
+Andrés Almiray
+
+== Details for exercise 1
+
+Most of the tools you will use, as well as the helper classes, will be seen in this example.
+
+=== The Groovy Console and the AST browser
+
+The Groovy console is a tool of choice to prototype AST transformations. For example, imagine that you have the following class:
+
+```groovy
+class Foo {
+}
+```
+
+That you want to transform into:
+
+```groovy
+class Foo {
+    public static final String $AUTHOR = 'John Doe'
+}
+```
+
+Then an interesting way to know what code you need to generate is the +AST browser+. Type the previous code (the one you want to have) in the Groovy Console, then hit the `CTRL+T` key combination. It will open the AST browser, which shows you the code structure on each +CompilePhase+. With this example, it would show you that you need to create a +FieldNode+:
+
+image::ast-browser.png[]
+
+=== Tips and tricks
+
+* Never forget to take inspiration from AST transformations available in the https://github.com/groovy/groovy-core[Groovy source] itself, such as the https://github.com/groovy/groovy-core/blob/master/src/main/org/codehaus/groovy/transform/LogASTTransformation.java[@Log AST transformation]
+* Extending https://github.com/groovy/groovy-core/blob/master/src/main/org/codehaus/groovy/transform/AbstractASTTransformation.java[the abstract AST transformation class] is usually a good idea
+* Classes from the https://github.com/groovy/groovy-core/tree/master/src/main/org/codehaus/groovy/ast[AST package]
+** especially, take a look at the https://github.com/groovy/groovy-core/blob/master/src/main/org/codehaus/groovy/ast/FieldNode.java[org.codehaus.groovy.ast.FieldNode class] and https://github.com/groovy/groovy-core/blob/master/src/main/org/codehaus/groovy/ast/ClassNode.java[org.codehaus.groovy.ast.ClassNode class]
+* To set the type of the field, use a constant from https://github.com/groovy/groovy-core/blob/master/src/main/org/codehaus/groovy/ast/ClassHelper.java[org.codehaus.groovy.ast.ClassHelper]
+
+=== Comments
+
+AST transformations are required to be annotated with +@GroovyASTTransformation+, which tells the *compilation phase* to which they are supposed to work. For example:
+```groovy
+@GroovyASTTransformation(phase= CompilePhase.CANONICALIZATION)
+```
+
+means that the AST transformation will run at the CANONICALIZATION phase. Take a look at the comments from https://github.com/groovy/groovy-core/blob/master/src/main/org/codehaus/groovy/control/CompilePhase.java[the CompilePhase enumeration] for a description of what phases are available. Global AST transformations can run at any phase, which is a big advantage.
+
+----
+Can you use the AST transformation in the same source tree as the one it's defined in?
+----
+No, because to be correctly interpreted by the compiler, the AST transformations have to be precompiled. In general, this is not an issue, such as here where the test source tree is separated from the main source tree. As the main source tree will be compiled before, the AST transformation is made available to the tests.
+
+[TIP]
+It's in general not a so good idea to have global AST transformations, because they will apply to *all* Groovy source code. This can produce unexpected results as well as slower compile times.

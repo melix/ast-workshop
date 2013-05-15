@@ -1,0 +1,67 @@
+= Unleashing the power of AST transformations
+Cédric Champeau <cedric.champeau@gmail.com>
+Andrés Almiray
+
+== Details for exercise 5
+
+
+=== The @ASTTest AST transformation
+
+The +@ASTTest+ AST transformation is a very interesting tool. First of all, it is itself an AST transformation, but it is aimed towards testing other AST transformations. It takes two arguments, which are:
+* a +compile phase+, corresponding to the compile phase after which we want to test the AST
+* a +value+ which is code that can contain assertions, but which is executed *against the AST*
+
+Take the following example:
+
+```groovy
+@ASTTest(phase=SEMANTIC_ANALYSIS, value={
+   assert node.name == 'Person'
+})
+class Person {
+}
+```
+
+What it does is during the compilation process, after the +SEMANTIC_ANALYSIS+ phase has run, check that the annotated node (+node+) has the name +Person+. Of course, the test is not really useful here, but it allows you to understand the logic. Should the assertion fail, then *compilation would fail*.
+
+The +@ASTTest+ transformation exposes two things in the script:
+* the +node+ variable, which refers to the AST node which is annotated with +@ASTTest+
+* the +lookup+ method, which is an utility method that can help you find a particular AST node when you want to use +@ASTTest+ on AST nodes which do not support annotations. For example:
+
+```groovy
+@ASTTest(phase=INSTRUCTION_SELECTION, value= {
+    lookup('forLoop').each {
+        assert it instanceof org.codehaus.groovy.ast.stmt.ForStatement
+        def collection = it.collectionExpression // MethodCallExpression
+    }
+})
+void test() {
+    def result = ""
+    def sum = 0
+    forLoop:
+    for ( Map.Entry<String, Integer> it in [a:1, b:3].entrySet() ) {
+        result += it.getKey()
+        sum += it.getValue()
+    }
+    assert result == "ab"
+    assert sum == 4
+}
+```
+
+The +lookup+ call will allow you to find the node which label is +forLoop+.
+
+=== Tips and tricks
+
+* Use static imports to remove boilerplate in your +ASTTest+ code
+
+=== Comments
+
+----
+What is the main difference between @ASTTest and the previous tests we've written?
+----
+The main difference is that +ASTTest+ allows you to test the actual result of your AST transformation as an AST tree, while regular tests only check the behaviour at runtime. Using +@ASTTest+ allows you to test things which are no more available at runtime (for example, +@TypeChecked+ uses it intensively to check the inferred types).
+
+----
+What solution is preferred?
+----
+Both. You should always test both the AST tree *and* the behaviour. They are testing different things, so you need both +@ASTTest+ and runtime tests.
+

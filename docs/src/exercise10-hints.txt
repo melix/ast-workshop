@@ -1,0 +1,43 @@
+= Unleashing the power of AST transformations
+Cédric Champeau <cedric.champeau@gmail.com>
+Andrés Almiray
+
+== Details for exercise 10
+
+
+=== Closures as annotation values
+
+Using closures as annotation values can be very powerful, for example to express constraints. To acheive it, Groovy leverages +Class+ values in annotations. For example, an AST transformation defined like this:
+```groovy
+@java.lang.annotation.Documented
+@Retention(RetentionPolicy.SOURCE)
+@Target([ ElementType.METHOD, ElementType.TYPE])
+@GroovyASTTransformationClass(["org.codehaus.groovy.transform.ConditionalInterruptibleASTTransformation"])
+public @interface ConditionalInterrupt {    
+    ...
+    /**
+     * Condition should be set as a closure expression. 
+     * @return
+     */
+    Class value();
+}
+```
+
+Then the fact of defining +value+ of type +Class+ make the AST transformation accept +ClosureExpression+ as an argument.
+
+=== Tips and tricks
+
+* As we use the +Class+ type, one could be tempted to use your AST transformation using a class literal as an argument, so you should always check that the type of the expression that you receive is a +ClosureExpression+, not a +ClassExpression+ for example...
+
+=== Comments
+
+----
+Would it be easy to make it compatible with @CompileStatic? Why?
+----
+No, it's not easy. There are multiple reasons for that, but the primary reason here is that you have a *single* closure expression that will be used for multiple parameters which can have distinct types. So even if you transform the closure expression so that +it+ becomes an explicit type, you would face the problem that all arguments would need to have the same type. So the only solution for you is to +clone+ the +ClosureExpression+, and by +clone+ we mean a deep cloning. Unfortunately, Groovy doesn't provide such a facility, so it's very hard to do. The alternative is to use distinct closure expressions for each argument.
+
+----
+Can you make this annotation work with separate closures for each argument?
+----
+Yes, you can change the annotation to have each parameter annotated with a distinct closure. However, it is not as easy as it seems, because if you use the AST transformation annotation itself, you will face a problem: the annotated note will be of type +Parameter+ and there's no way to find the enclosing method or the enclosing class node, so you would not be able to actually update the body! The solution is to keep the AST transformation at the method level, and use a distinct annotation to provide the closure expressions.
+

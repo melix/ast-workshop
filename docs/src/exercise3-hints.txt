@@ -1,0 +1,30 @@
+= Unleashing the power of AST transformations
+Cédric Champeau <cedric.champeau@gmail.com>
+Andrés Almiray
+
+== Details for exercise 3
+
+While local AST transformations require an additional file (the annotation class), they are often much easier to deal with.
+
+=== Local AST Transformations
+
+You need to create an annotation class that will be used to annotate the code. Like a regular Java +@interface+, this annotation should tell on which elements it is allowed. Take a look at the +@Bindable+ AST transformation, for example:
+
+```groovy
+@java.lang.annotation.Documented
+@Retention(RetentionPolicy.SOURCE)
+@Target({ElementType.FIELD, ElementType.TYPE})
+@GroovyASTTransformationClass("groovy.beans.BindableASTTransformation")
+public @interface Bindable {
+}
+```
+
+You will notice the annotation is itself annotated with +@GroovyASTTransformationClass+, which takes as an argument the name of the AST transformation implementation class which will be instantiated and applied (at the appropriate compile phase) each time an annotation is found.
+
+=== Tips and tricks
+
+* Local AST transformations cannot be run before the +SEMANTIC_ANALYSIS+ phase. The reason is that before that phase, references to classes are not resolved, so the compiler is not able to know that the annotation is actually an AST transformation.
+
+=== Comments
+
+If you write a local AST transformation, it is recommanded that it's documented on the annotation class, while the javadocs for the implementation class will only give internal details on how it works.

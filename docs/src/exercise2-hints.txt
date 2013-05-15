@@ -1,0 +1,110 @@
+= Unleashing the power of AST transformations
+Cédric Champeau <cedric.champeau@gmail.com>
+Andrés Almiray
+
+== Details for exercise 2
+
+=== The AST Builder
+
+The +AstBuilder+ is a builder bundled with the Groovy distribution which makes writing AST transformations easier, using the practical builder pattern (like the +MarkupBuilder+ for example). The https://github.com/groovy/groovy-core/blob/master/src/main/org/codehaus/groovy/ast/builder/AstBuilder.groovy[org.codehaus.ast.builder.AstBuilder class] provides three flavors to create AST nodes. Here is what the documentation says:
+
+==== AstBuilder.buildFromString
+The +AstBuilder+ object provides an API to build AST from Strings of Groovy source code. The original example using +buildFromString+ is:
+```groovy
+List<ASTNode> nodes = new AstBuilder().buildFromString("\"Hello\"")
+```
+
+*Advantages*
+
+* Does not require author to understand ASTNode subtypes
+* Allows author to target a CompilePhase
+* Communicates source code being generated
+* Robust - Should need no changes even if AST is updated in a release
+
+*Disadvantages*
+
+* IDE cannot check syntax or grammar
+* IDE cannot refactor across String
+* Some entities cannot be created, like the AST for a field declaration
+
+==== AstBuilder.buildFromCode
+The +AstBuilder+ object also provides an API to create AST from source code. The original example using +buildFromCode+ is:
+
+```groovy
+List<ASTNode> nodes = new AstBuilder().buildFromCode { "Hello" }
+```
+
+*Advantages*
+
+* Clearly communicates source being generated
+* Does not require author to understand ASTNode subtypes
+* Allows author to target a CompilePhase
+* Robust - Should need no changes even if AST is updated in a release
+* IDE supports syntax checking and refactoring in Closure
+
+*Disadvantages*
+
+* Some entities cannot be created, like the AST for a field declaration
+* +buildFromCode+ requires that the left hand side of the invocation be of type +AstBuilder+. The best way to ensure this is to invoke it with:
+```groovy
+new AstBuilder().buildFromCode { ... }
+```
+rather than having a local variable or field of type +AstBuilder+.
+
+==== AstBuilder.buildFromSpec
+The +AstBuilder+ object also provides a DSL like API for building AST. The original example using +buildFromSpec+ is:  
+
+```groovy
+List<ASTNode> nodes = new AstBuilder().buildFromSpec {
+    block {
+        returnStatement {
+            constant "Hello"
+        }
+    }
+}
+```
+
+*Advantages*
+
+* Allows conditionals (or any Groovy code) to be executed during the AST building process.
+* Allows any ASTNode subtype to be created
+* Fully documented with lengthy examples in TestCase
+
+*Disadvantages*
+
+* It can be difficult to determine what AST you need to write
+* Verbose - does not always communicate the source being created
+* Fragile - AST may need to change between major releases
+* Author must know what AST looks like in a particular CompilePhase
+* IDE does not yet provide code tips
+
+=== Tips and tricks
+
+* Take a look at the http://groovy.codehaus.org/Building+AST+Guide[full documentation]
+* The https://github.com/groovy/groovy-core/tree/master/src/test/org/codehaus/groovy/ast/builder[AstBuilder unit tests] are very interesting with regards to documentation
+
+=== Comments
+
+----
+What are the advantages of writing an AST transformation in Groovy?
+----
+First of all, the code is much more concise. It also allows the usage of the +AstBuilder+ which cannot be called from Java code.
+
+----
+Can you see any problem with writing the AST transform in Groovy?
+----
+There can be several issues with writing AST transforms in Groovy. First of all, if you have global AST transformations on classpath, it is possible that they are applied to your currently built AST transform (but this is a general issue with global AST transforms). Second, AST transformations written in Groovy, unless you use +@CompileStatic+, will be Groovy code and therefore initialize the meta-object protocol before their execution. Method calls inside the AST transformation will use the dynamic path. So in general, AST transformations written in Groovy will increase the compilation times.
+
+----
+What are the advantages of the AST builder?
+----
+The advantages of using the AST builder are straightforward: code is easy to write and easy to read.
+
+----
+What are the problems of the AST builder?
+----
+Not all flavors of the AST builder allow writing every kind of code. For example, generating the field node using +buildFromString+ is not possible, or you would have to create a full class then choose the appropriate node in the generated AST, which leads to unnecessarily complex code compared to generating the code by hand.
+
+[WARNING]
+While the AST builder is an excellent tool for prototyping AST transforms, we do not recommand using it for production code. Even if it seems easy to generate the appropriate code, the AST builder cannot solve some problems like interactions with existing class nodes, redirects or generics, nor it allows you to properly set the line/column numbers. It can lead to difficult to debug AST transformations and cryptic compilation errors.
+

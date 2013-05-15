@@ -1,0 +1,44 @@
+= Unleashing the power of AST transformations
+Cédric Champeau <cedric.champeau@gmail.com>
+Andrés Almiray
+
+== Details for exercise 9
+
+
+=== Generics are (not) your friends
+
+We love generics as we hate them. While they provide definitely useful type information, they can be a mess to deal with. Knowing Groovy internals, it's even more painful, because the internal representation of generics is not good. That said, you have to live with them and make them compatible with your AST transforms. The luckiest among you will have the chance of dropping generic type information, but it's not always possible...
+
+To set the generics types on a class node, you have to call the +setGenericsTypes+ method:
+
+```java
+myType.setGenericsTypes(new GenericsType[] { ... });
+```
+
+=== Tips and tricks
+
+* If you need to reuse a class node which uses generics, ask for a "fresh" one by calling +getPlainNodeReference()+
+* calling +ClassHelper.make(List)+ or +ClassHelper.makeWithoutCaching(List)+ will *not* help you
+* *never* change the *redirect* class node of a class by yourself, it's purely internal representation
+
+=== Comments
+
+----
+in the transform code, change the type of the field to ClassHelper.LIST_TYPE. What happens?
+in the transform code, change the type of the field to ClassHelper.LIST_TYPE.getPlainNodeReference(). What happens?
+----
+If you use an internal type like +ClassHelper.LIST_TYPE+, you are *sharing* a class node with multiple AST nodes, which can come from various places or even be used by any other AST transformation. Imagine that you change the generics types associated to the +LIST_TYPE+. Then internally, a type represented as +List+ would instantly become +List<String>+ everywhere in the code, just because you share the same instance! To avoid that, the compiler throws errors if you try to do so (but we cannot catch all cases). Retrieving a class node for which you have the right to change the generics types is as easy as calling +getPlainNodeReference+ on the original type.
+
+[TIP]
+====
+In general, it is to be avoided to reuse internal AST nodes from Groovy. For example, you could be tempted to use +ConstantExpression.NULL+ to express the use of the +null+ argument to a generated method call. While this looks like a good idea, take a look at the associated documentation:
+```groovy
+// The following fields are only used internally; every occurrence of a user-defined expression of the same kind
+// has its own instance so as to preserve line information. Consequently, to test for such an expression, don't
+// compare against the field but call isXXXExpression() instead.
+public static final ConstantExpression NULL = new ConstantExpression(null);
+```
+The reason why you should never reuse the +NULL+ constant here is even clearer if you think of the way the type checker works. It performs code analysis and adds node metadata, such as the _inferred type_ onto the AST nodes. If you share the same instance of +NULL+ for all nulls, then the inferred type of the +null+ constant would change everywhere it is used!
+So it's a pro-tip for your AST transformations: never, ever, reuse internal constants or you may face one of the most difficult things to debug, like builds failing when you execute the full build, but not when you only run a single test case...
+====
+
