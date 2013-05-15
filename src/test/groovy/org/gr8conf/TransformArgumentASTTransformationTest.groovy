@@ -4,10 +4,16 @@ class TransformArgumentASTTransformationTest extends GroovyTestCase {
 
     void testTransformArgument() {
         assertScript '''import org.gr8conf.TransformArgument
+            import org.gr8conf.ArgTransformer
+
             class Foo {
                 def factor
-                @TransformArgument({ it*factor })
-                def sum(x,y) { x + y}
+                @TransformArgument
+                def sum(
+                    @ArgTransformer({ it*factor }) x,
+                    @ArgTransformer({ it*factor })y) {
+                        x + y
+                }
             }
             def foo = new Foo(factor:2)
             assert foo.sum(1,2) == 6

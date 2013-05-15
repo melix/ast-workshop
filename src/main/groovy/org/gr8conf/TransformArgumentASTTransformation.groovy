@@ -40,24 +40,26 @@ import org.codehaus.groovy.transform.GroovyASTTransformation
 
 @GroovyASTTransformation(phase = CompilePhase.SEMANTIC_ANALYSIS)
 class TransformArgumentASTTransformation extends AbstractASTTransformation {
+    private static final ClassNode ARGTRANSFORMER_TYPE = ClassHelper.make(ArgTransformer)
+
     @Override
     public void visit(final ASTNode[] nodes, final SourceUnit source) {
         if (nodes.length != 2) return
         if (nodes[0] instanceof AnnotationNode && nodes[1] instanceof MethodNode) {
-            def annotation = nodes[0]
-            def value = annotation.getMember('value')
-            if (value instanceof ClosureExpression) {
-                transformMethod(nodes[1], value)
-            } else {
-                source.addError(new SyntaxException("Invalid value for annotation", annotation.lineNumber, annotation.columnNumber))
-            }
+            transformMethod(nodes[1])
         }
     }
 
-    void transformMethod(MethodNode node, ClosureExpression argumentMapper) {
+    void transformMethod(MethodNode node) {
         def code = createBlock(node.code)
-        node.parameters.each {
-            mapArgument(code, it, argumentMapper)
+        node.parameters.each { param ->
+            def anns = param.getAnnotations(ARGTRANSFORMER_TYPE)
+            if (anns) {
+                def firstArgValue = anns[0].getMember('value')
+                if (firstArgValue instanceof ClosureExpression) {
+                    mapArgument(code, param, firstArgValue)
+                }
+            }
         }
     }
 
@@ -71,7 +73,7 @@ class TransformArgumentASTTransformation extends AbstractASTTransformation {
     }
 
     private MethodCallExpression createMappingMethodCall(ClosureExpression argumentMapper, Parameter parameter) {
-        // insert here the code which will call the closure
+        new MethodCallExpression(argumentMapper, "call", new VariableExpression(parameter))
     }
 
     private static BlockStatement createBlock(Statement code) {
