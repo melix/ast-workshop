@@ -14,8 +14,6 @@ buildscript {
 
 apply plugin: 'asciidoctor'
 apply plugin:'idea'
-apply plugin:'groovy'
-apply plugin:'java'
 
 repositories {
     mavenCentral()
