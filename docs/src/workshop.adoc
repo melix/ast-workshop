@@ -42,7 +42,7 @@ git checkout exercise1-solution
 It is recommanded that you save your solution first, to compare it with the workshop solutions:
 
 [source,text]
-git branch -b exercise1-mysolution
+git checkout -b exercise1-mysolution
 git commit -a -m "My solution to exercise 1"
 git checkout exercise1-solution
 
