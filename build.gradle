@@ -1,3 +1,18 @@
+buildscript {
+    repositories {
+        jcenter()
+        maven {
+            name 'Bintray Asciidoctor repo'
+            url 'http://dl.bintray.com/content/aalmiray/asciidoctor'
+        }
+    }
+
+    dependencies {
+        classpath 'org.asciidoctor:asciidoctor-gradle-plugin:0.7.0'
+    }
+}
+
+apply plugin: 'asciidoctor'
 apply plugin:'idea'
 apply plugin:'groovy'
 apply plugin:'java'
@@ -15,4 +30,6 @@ dependencies {
     testCompile "org.spockframework:spock-core:$spockVersion"
 }
 
+asciidoctor.sourceDir = file('docs/src')
+asciidoctor.outputDir = file('docs/gen')
 
