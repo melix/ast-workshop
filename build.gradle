@@ -33,3 +33,10 @@ dependencies {
 asciidoctor.sourceDir = file('docs/src')
 asciidoctor.outputDir = file('docs/gen')
 
+clean.dependsOn cleanAsciidoctor
+
+task publish(type: GradleBuild) {
+    buildFile = 'publish.gradle'
+    tasks = ['publishGhPages']
+}
+

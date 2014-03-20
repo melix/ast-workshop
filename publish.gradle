@@ -1,0 +1,23 @@
+buildscript {
+    repositories {
+        mavenLocal()
+        mavenCentral()
+        jcenter()
+    }
+
+    dependencies {
+        classpath 'org.ajoberstar:gradle-git:0.6.3'
+    }
+}
+
+apply plugin: 'github-pages'
+
+githubPages {
+    repoUri = 'git@github.com:melix/ast-workshop.git'
+    pages {
+        from(file('docs/gen')) {
+            into '.'
+        }
+    }
+}
+
