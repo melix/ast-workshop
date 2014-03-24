@@ -119,7 +119,7 @@ Should you need help, follow the instructions of link:exercise5-hints.html[this 
 [TIP]
 Should you need help, follow the instructions of link:exercise6-hints.html[this document]
 
-=== Exercise 7: Variable scope, @CompileStatic and the 666 trick
+=== Exercise 7: Variable scope, @CompileStatic and hidden errors
 
 The source code contains a global AST transformation that creates a +sayHello+ method that looks like this:
 ```groovy
@@ -131,11 +131,7 @@ void sayHello(String message, boolean shout=false) {
 * execute the unit test and check that it passes
 * uncomment the +@CompileStatic+ annotation, run the test again. What happens?
 ** you are just facing an incompatibility with +@CompileStatic+, but what's wrong?
-* after the +MethodCallExpression toUpperCaseCall+ line, append the following code:
-```groovy
-toUpperCaseCall.setLineNumber(666);
-toUpperCaseCall.setColumnNumber(666);
-```
+* execute the code again with `System.setProperty("groovy.stc.debug", "true")`
 ** What happens? What does it tell you?
 * at the end of the method body, add the following lines:
 ```java
