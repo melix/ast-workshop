@@ -383,7 +383,7 @@ span.icon > [class^="icon-"], span.icon > [class*=" icon-"] { cursor: default; }
 <li><a href="#_exercise_4_parametrized_ast_transformations">Exercise 4: Parametrized AST transformations</a></li>
 <li><a href="#_exercise_5_using_asttest">Exercise 5: Using @ASTTest</a></li>
 <li><a href="#_exercice_6_classnode_vs_classhelper_make">Exercice 6: ClassNode vs ClassHelper.make</a></li>
-<li><a href="#_exercise_7_variable_scope_compilestatic_and_the_666_trick">Exercise 7: Variable scope, @CompileStatic and the 666 trick</a></li>
+<li><a href="#_exercise_7_variable_scope_compilestatic_and_hidden_errors">Exercise 7: Variable scope, @CompileStatic and hidden errors</a></li>
 <li><a href="#_exercise_8_expression_transformers">Exercise 8: Expression transformers</a></li>
 <li><a href="#_exercise_9_working_with_generics">Exercise 9: Working with generics</a></li>
 <li><a href="#_exercise_10_closures_as_annotation_values">Exercise 10: Closures as annotation values</a></li>
@@ -702,7 +702,7 @@ Should you need help, follow the instructions of <a href="exercise6-hints.html">
 </div>
 </div>
 <div class="sect2">
-<h3 id="_exercise_7_variable_scope_compilestatic_and_the_666_trick">Exercise 7: Variable scope, @CompileStatic and the 666 trick</h3>
+<h3 id="_exercise_7_variable_scope_compilestatic_and_hidden_errors">Exercise 7: Variable scope, @CompileStatic and hidden errors</h3>
 <div class="paragraph">
 <p>The source code contains a global AST transformation that creates a <code>sayHello</code> method that looks like this:</p>
 </div>
@@ -729,27 +729,17 @@ Should you need help, follow the instructions of <a href="exercise6-hints.html">
 </div>
 </li>
 <li>
-<p>after the <code>MethodCallExpression toUpperCaseCall</code> line, append the following code:</p>
-</li>
-</ul>
-</div>
-<div class="listingblock">
-<div class="content">
-<pre class="prettyprint groovy language-groovy"><code>toUpperCaseCall.setLineNumber(666);
-toUpperCaseCall.setColumnNumber(666);</code></pre>
-</div>
-</div>
+<p>execute the code again with <code>System.setProperty("groovy.stc.debug", "true")</code></p>
 <div class="ulist">
 <ul>
 <li>
 <p>What happens? What does it tell you?</p>
-<div class="ulist">
-<ul>
-<li>
-<p>at the end of the method body, add the following lines:</p>
 </li>
 </ul>
 </div>
+</li>
+<li>
+<p>at the end of the method body, add the following lines:</p>
 </li>
 </ul>
 </div>
@@ -895,7 +885,7 @@ Should you need help, follow the instructions of <a href="exercise10-hints.html"
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2014-03-20 11:31:40 CET
+Last updated 2014-03-24 10:58:39 CET
 </div>
 </div>
 </body>
