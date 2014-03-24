@@ -9,8 +9,35 @@ To run this workshop, you will need:
 
 * a +git+ client
 * an internet connection for the +Gradle Wrapper+
-** or prepare yourself by downloading +Gradle 1.6+
+** or prepare yourself by downloading +Gradle 1.10+
 * ideally, an IDE (but you can use any editor)
+
+You should be able to get started only with Git installed:
+
+----
+git clone https://github.com/melix/ast-workshop.git
+cd ast-workshop
+git checkout exercise1
+./gradlew test
+----
+
+which should fail with:
+
+----
+:test
+
+org.gr8conf.AuthorAdderASTTransformationTest > testThatAuthorExists FAILED
+    groovy.lang.MissingPropertyException at AuthorAdderASTTransformationTest.groovy:5
+
+1 test completed, 1 failed
+:test FAILED
+----
+
+which is fine, this is our starting point. If you want IntelliJ IDEA support, just execute:
+
+----
+./gradlew idea
+----
 
 == Following the workshop
 
