@@ -409,7 +409,7 @@ span.icon > [class^="icon-"], span.icon > [class*=" icon-"] { cursor: default; }
 <div class="ulist">
 <ul>
 <li>
-<p>or prepare yourself by downloading <code>Gradle 1.6</code></p>
+<p>or prepare yourself by downloading <code>Gradle 1.10</code></p>
 </li>
 </ul>
 </div>
@@ -418,6 +418,39 @@ span.icon > [class^="icon-"], span.icon > [class*=" icon-"] { cursor: default; }
 <p>ideally, an IDE (but you can use any editor)</p>
 </li>
 </ul>
+</div>
+<div class="paragraph">
+<p>You should be able to get started only with Git installed:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre>git clone https://github.com/melix/ast-workshop.git
+cd ast-workshop
+git checkout exercise1
+./gradlew test</pre>
+</div>
+</div>
+<div class="paragraph">
+<p>which should fail with:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre>:test
+
+org.gr8conf.AuthorAdderASTTransformationTest &gt; testThatAuthorExists FAILED
+    groovy.lang.MissingPropertyException at AuthorAdderASTTransformationTest.groovy:5
+
+1 test completed, 1 failed
+:test FAILED</pre>
+</div>
+</div>
+<div class="paragraph">
+<p>which is fine, this is our starting point. If you want IntelliJ IDEA support, just execute:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre>./gradlew idea</pre>
+</div>
 </div>
 </div>
 </div>
@@ -885,7 +918,7 @@ Should you need help, follow the instructions of <a href="exercise10-hints.html"
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2014-03-24 10:58:39 CET
+Last updated 2014-03-24 15:37:22 CET
 </div>
 </div>
 </body>
